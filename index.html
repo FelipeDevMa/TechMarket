@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechMarket - Tecnologia & Games</title>
+    <link rel="icon" href="logo.png">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --card: #111116;
+            --header: #0d0d12;
+            --texto: #f0f0f0;
+            --texto-claro: #aaa;
+            --laranja: #ff6500;
+            --laranja-hover: #ff7a22;
+            --ciano: #00bfff;
+            --borda: #1e1e2a;
+            --sombra: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', system-ui, sans-serif; }
+        body { background:var(--bg); color:var(--texto); }
+        header {
+            background:var(--header); display:flex; align-items:center;
+            justify-content:space-between; padding:12px 40px;
+            border-bottom:1px solid var(--borda); position:sticky; top:0; z-index:1000;
+            gap:20px; flex-wrap:wrap;
+        }
+        .logo-area {
+            display:flex; align-items:center; gap:10px; text-decoration:none;
+            color:white; font-size:26px; font-weight:700;
+        }
+        .logo-area img { width:42px; }
+        .logo-area span {
+            background:linear-gradient(135deg, var(--ciano), var(--laranja));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:800;
+        }
+        .busca {
+            flex:1; max-width:480px; position:relative;
+        }
+        .busca input {
+            width:100%; padding:12px 45px 12px 20px; background:#1c1c25;
+            border:1px solid #333; color:white; border-radius:25px; font-size:15px;
+            outline:none; transition:0.3s;
+        }
+        .busca input:focus { border-color:var(--laranja); box-shadow:0 0 0 3px rgba(255,101,0,0.2); }
+        .busca button {
+            position:absolute; right:5px; top:50%; transform:translateY(-50%);
+            background:none; border:none; color:var(--laranja); font-size:20px; cursor:pointer;
+        }
+        .header-icones { display:flex; align-items:center; gap:20px; }
+        .icone-user, .icone-carrinho {
+            position:relative; color:white; font-size:22px; background:none; border:none;
+            cursor:pointer; text-decoration:none; transition:0.2s; padding:8px; border-radius:8px;
+        }
+        .icone-user:hover, .icone-carrinho:hover { color:var(--laranja); background:#1c1c25; }
+        .carrinho-contador {
+            position:absolute; top:-4px; right:-6px; background:var(--laranja); color:white;
+            font-size:11px; font-weight:bold; width:20px; height:20px; border-radius:50%;
+            display:none; align-items:center; justify-content:center; border:2px solid var(--header);
+        }
+        .categorias {
+            background:#0d0d12; border-bottom:1px solid var(--borda); padding:0 40px;
+            display:flex; gap:30px; overflow-x:auto; white-space:nowrap; position:sticky; top:0; z-index:999;
+        }
+        .categorias a {
+            color:var(--texto-claro); text-decoration:none; padding:14px 0; font-size:15px;
+            font-weight:500; transition:0.2s; border-bottom:2px solid transparent;
+        }
+        .categorias a:hover, .categorias a.ativo { color:white; border-bottom-color:var(--laranja); }
+        .banner {
+            height:420px; display:flex; align-items:center; justify-content:center;
+            flex-direction:column; text-align:center;
+            background:linear-gradient(135deg, rgba(0,0,0,0.75), rgba(0,0,0,0.3)),
+            url('https://images.unsplash.com/photo-1535223289827-42f1e9919769?q=80&w=1600&auto=format&fit=crop') center/cover;
+            position:relative; border-bottom:3px solid var(--laranja);
+        }
+        .banner h1 { font-size:58px; color:white; text-shadow:0 4px 20px rgba(0,0,0,0.6); }
+        .banner h1 span { color:var(--laranja); }
+        .banner p { margin-top:15px; font-size:22px; color:#ddd; }
+        .banner .btn-ofertas {
+            margin-top:30px; padding:16px 40px; background:var(--laranja); color:white;
+            font-weight:bold; font-size:18px; border-radius:30px; text-decoration:none;
+            transition:0.3s; border:none; cursor:pointer;
+        }
+        .banner .btn-ofertas:hover { background:var(--laranja-hover); transform:translateY(-3px); box-shadow:0 10px 20px rgba(255,101,0,0.4); }
+        .vantagens {
+            display:flex; justify-content:center; gap:40px; padding:25px 40px;
+            background:#0d0d12; border-bottom:1px solid var(--borda); flex-wrap:wrap;
+        }
+        .vantagem-item { display:flex; align-items:center; gap:10px; color:var(--texto-claro); font-size:15px; }
+        .vantagem-item span { font-size:24px; color:var(--laranja); }
+        .container { padding:30px 40px; }
+        .titulo-secao {
+            font-size:32px; margin-bottom:30px; display:flex; align-items:center; gap:15px;
+        }
+        .titulo-secao::before {
+            content:''; display:inline-block; width:6px; height:36px;
+            background:var(--laranja); border-radius:4px;
+        }
+        .produtos {
+            display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:25px;
+        }
+        .card {
+            background:var(--card); border-radius:16px; overflow:hidden;
+            border:1px solid var(--borda); transition:0.3s; text-decoration:none;
+            color:inherit; display:flex; flex-direction:column; position:relative;
+        }
+        .card:hover { transform:translateY(-8px); box-shadow:var(--sombra); border-color:#333; }
+        .card .selo {
+            position:absolute; top:12px; left:12px; background:var(--laranja); color:white;
+            padding:5px 12px; border-radius:20px; font-size:13px; font-weight:bold; z-index:2;
+        }
+        .card img { width:100%; height:190px; object-fit:cover; border-bottom:1px solid var(--borda); }
+        .card-content { padding:20px; flex-grow:1; display:flex; flex-direction:column; }
+        .card h3 { font-size:16px; margin-bottom:10px; color:white; font-weight:600; }
+        .preco { font-size:24px; font-weight:800; color:white; margin-bottom:5px; }
+        .preco-antigo { font-size:14px; color:var(--texto-claro); text-decoration:line-through; margin-bottom:10px; }
+        .btn-comprar {
+            width:100%; padding:13px; background:var(--laranja); color:white;
+            font-weight:bold; font-size:16px; border:none; border-radius:10px;
+            cursor:pointer; transition:0.3s; margin-top:auto; text-transform:uppercase;
+        }
+        .btn-comprar:hover { background:var(--laranja-hover); box-shadow:0 5px 15px rgba(255,101,0,0.4); }
+        .auth-section {
+            background:var(--card); margin:40px auto; max-width:450px; padding:35px;
+            border-radius:20px; border:1px solid var(--borda); box-shadow:var(--sombra);
+        }
+        .auth-section h2 { color:white; text-align:center; margin-bottom:25px; font-size:26px; }
+        .auth-section input {
+            width:100%; padding:14px 18px; margin-top:15px; background:#1c1c25;
+            border:1px solid #333; color:white; border-radius:12px; font-size:16px; outline:none;
+        }
+        .auth-section input:focus { border-color:var(--laranja); box-shadow:0 0 0 2px rgba(255,101,0,0.2); }
+        .auth-section button {
+            width:100%; padding:15px; margin-top:25px; background:var(--laranja); color:white;
+            font-weight:bold; font-size:18px; border:none; border-radius:12px; cursor:pointer;
+            text-transform:uppercase; transition:0.3s;
+        }
+        .auth-section button:hover { background:var(--laranja-hover); }
+        .auth-toggle { text-align:center; margin-top:20px; color:var(--texto-claro); }
+        .auth-toggle a { color:var(--laranja); cursor:pointer; font-weight:bold; }
+        .mini-carrinho {
+            display:none; position:absolute; top:58px; right:40px; background:var(--card);
+            border:1px solid var(--borda); border-radius:16px; width:380px; max-height:450px;
+            overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,0.8); z-index:2000; padding:20px;
+        }
+        .mini-carrinho.ativo { display:block; }
+        .mini-carrinho h3 { color:white; margin-bottom:15px; }
+        .mini-item {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:10px 0; border-bottom:1px solid #222; font-size:14px;
+        }
+        .mini-item button { background:#ff4444; border:none; color:white; padding:4px 10px; border-radius:6px; cursor:pointer; }
+        .mini-total { margin-top:15px; font-weight:bold; color:var(--laranja); font-size:18px; }
+        .mini-carrinho .btn-ir-carrinho {
+            display:block; width:100%; margin-top:15px; padding:12px; background:var(--laranja);
+            color:white; font-weight:bold; text-align:center; border-radius:10px; text-decoration:none;
+        }
+        footer {
+            background:#0d0d12; border-top:1px solid var(--borda); padding:30px 40px;
+            text-align:center; color:var(--texto-claro); font-size:15px;
+        }
+        @media (max-width: 768px) {
+            header { padding:12px 15px; gap:10px; }
+            .busca { order:3; flex:100%; max-width:100%; }
+            .banner h1 { font-size:34px; }
+            .container { padding:20px 15px; }
+            .mini-carrinho { width:95vw; right:10px; }
+            .categorias { padding:0 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="logo-area">
+        <img src="logo.png" alt="TechMarket">
+        <span>TechMarket</span>
+    </a>
+    <div class="busca">
+        <input type="text" id="buscaInput" placeholder="O que você procura?" onkeyup="filtrarProdutos()">
+        <button>🔍</button>
+    </div>
+    <div class="header-icones">
+        <button class="icone-user" id="iconeUser" onclick="toggleLogin()" title="Minha Conta">👤</button>
+        <div style="position:relative;">
+            <button class="icone-carrinho" id="iconeCarrinho" onclick="toggleMiniCarrinho()">
+                🛒
+                <span class="carrinho-contador" id="carrinhoContador">0</span>
+            </button>
+            <div class="mini-carrinho" id="miniCarrinho">
+                <h3>🛒 Meu Carrinho</h3>
+                <div id="miniItens"></div>
+                <div class="mini-total" id="miniTotal">Total: R$ 0</div>
+                <a href="checkout.html" class="btn-ir-carrinho">Ir para o Carrinho</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<nav class="categorias">
+    <a href="#" class="ativo">TODOS</a>
+    <a href="#">NOTEBOOKS</a>
+    <a href="#">PC GAMER</a>
+    <a href="#">PLACAS DE VÍDEO</a>
+    <a href="#">MONITORES</a>
+    <a href="#">PERIFÉRICOS</a>
+    <a href="#">CONSOLES</a>
+    <a href="#">OFERTAS</a>
+</nav>
+
+<section class="banner">
+    <h1>GAMER <span>WEEK</span></h1>
+    <p>Até 30% OFF nos melhores produtos de tecnologia</p>
+    <a href="#produtosSection" class="btn-ofertas">VER OFERTAS</a>
+</section>
+
+<div class="vantagens">
+    <div class="vantagem-item"><span>🚚</span> Frete Grátis acima de R$299</div>
+    <div class="vantagem-item"><span>💳</span> Até 12x sem juros</div>
+    <div class="vantagem-item"><span>🔒</span> Compra Segura</div>
+    <div class="vantagem-item"><span>📦</span> Entrega Rápida</div>
+</div>
+
+<div class="auth-section" id="authSection">
+    <h2 id="authTitle">Acesse sua conta</h2>
+    <input type="text" id="authNome" placeholder="Nome completo" style="display:none;">
+    <input type="email" id="authEmail" placeholder="Digite seu e-mail">
+    <input type="password" id="authSenha" placeholder="Senha">
+    <button id="authBtn" onclick="realizarLoginCadastro()">Entrar</button>
+    <div class="auth-toggle">
+        <span id="authToggleText">Não tem conta? </span><a id="authToggleLink" onclick="toggleAuth()">Cadastre-se</a>
+    </div>
+    <div id="authMsg" style="margin-top:15px; text-align:center; color:#ff6b6b;"></div>
+</div>
+
+<section class="container" id="produtosSection">
+    <h2 class="titulo-secao">Produtos em Destaque</h2>
+    <div class="produtos" id="listaProdutos"></div>
+</section>
+
+<footer>
+    © 2026 TechMarket - Todos os direitos reservados | CNPJ 00.000.000/0001-00
+</footer>
+
+<!-- Script com os dados dos produtos e funções de carrinho -->
+<script src="produtos.js"></script>
+
+<script>
+    // ===== LOGIN / CADASTRO =====
+    let modoAuth = 'login';
+    let usuarioLogado = null;
+
+    function toggleLogin() {
+        document.getElementById('authSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function toggleAuth() {
+        const nomeInput = document.getElementById('authNome');
+        const title = document.getElementById('authTitle');
+        const btn = document.getElementById('authBtn');
+        const toggleText = document.getElementById('authToggleText');
+        const toggleLink = document.getElementById('authToggleLink');
+        document.getElementById('authMsg').textContent = '';
+        if (modoAuth === 'login') {
+            modoAuth = 'cadastro';
+            nomeInput.style.display = 'block';
+            title.textContent = 'Criar conta';
+            btn.textContent = 'Cadastrar';
+            toggleText.textContent = 'Já tem conta? ';
+            toggleLink.textContent = 'Entrar';
+        } else {
+            modoAuth = 'login';
+            nomeInput.style.display = 'none';
+            title.textContent = 'Acesse sua conta';
+            btn.textContent = 'Entrar';
+            toggleText.textContent = 'Não tem conta? ';
+            toggleLink.textContent = 'Cadastre-se';
+        }
+    }
+
+    async function realizarLoginCadastro() {
+        const email = document.getElementById('authEmail').value.trim();
+        const senha = document.getElementById('authSenha').value;
+        const nome = document.getElementById('authNome').value.trim();
+        const msgDiv = document.getElementById('authMsg');
+        msgDiv.textContent = '';
+        if (modoAuth === 'cadastro' && nome.length < 3) {
+            msgDiv.textContent = 'Nome deve ter pelo menos 3 caracteres.';
+            return;
+        }
+        if (!email.includes('@') || senha.length < 6) {
+            msgDiv.textContent = 'E-mail inválido ou senha muito curta (mín. 6).';
+            return;
+        }
+        let url = 'backend/' + (modoAuth === 'login' ? 'login.php' : 'cadastro.php');
+        const bodyData = new URLSearchParams();
+        bodyData.append('email', email);
+        bodyData.append('senha', senha);
+        if (modoAuth === 'cadastro') bodyData.append('nome', nome);
+        try {
+            const resposta = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: bodyData.toString()
+            });
+            const dados = await resposta.json();
+            if (dados.erro) {
+                msgDiv.textContent = dados.erro;
+                return;
+            }
+            if (dados.sucesso) {
+                usuarioLogado = { nome: dados.nome || email };
+                atualizarHeaderUsuario();
+                msgDiv.style.color = '#28a745';
+                msgDiv.textContent = dados.sucesso;
+                setTimeout(() => document.getElementById('authSection').style.display = 'none', 1200);
+            }
+        } catch (e) {
+            msgDiv.textContent = 'Erro de conexão com o servidor.';
+        }
+    }
+
+    async function verificarSessao() {
+        try {
+            const resp = await fetch('backend/verificar_sessao.php');
+            const dados = await resp.json();
+            if (dados.logado) {
+                usuarioLogado = { nome: dados.nome };
+                atualizarHeaderUsuario();
+                document.getElementById('authSection').style.display = 'none';
+            }
+        } catch (e) {}
+    }
+
+    async function logout() {
+        await fetch('backend/logout.php');
+        usuarioLogado = null;
+        atualizarHeaderUsuario();
+        document.getElementById('authSection').style.display = 'block';
+    }
+
+    function atualizarHeaderUsuario() {
+        const userBtn = document.getElementById('iconeUser');
+        if (usuarioLogado) {
+            userBtn.textContent = '👋';
+            userBtn.title = usuarioLogado.nome + ' - Sair';
+            userBtn.onclick = logout;
+        } else {
+            userBtn.textContent = '👤';
+            userBtn.title = 'Minha Conta';
+            userBtn.onclick = toggleLogin;
+        }
+    }
+
+    
+    function toggleMiniCarrinho() {
+        document.getElementById('miniCarrinho').classList.toggle('ativo');
+    }
+
+    function atualizarMiniCarrinho() {
+        const carrinho = getCarrinho();
+        const miniItens = document.getElementById('miniItens');
+        const miniTotal = document.getElementById('miniTotal');
+        if (carrinho.length === 0) {
+            miniItens.innerHTML = '<p style="color:#aaa;padding:10px 0;">Seu carrinho está vazio.</p>';
+            miniTotal.textContent = 'Total: R$ 0';
+        } else {
+            miniItens.innerHTML = carrinho.map((item, i) => `
+                <div class="mini-item">
+                    <span>${item.nome}</span>
+                    <span>R$ ${item.preco.toLocaleString()}</span>
+                    <button onclick="removerDoCarrinho(${i}); event.stopPropagation();">🗑</button>
+                </div>
+            `).join('');
+            miniTotal.textContent = `Total: R$ ${totalCarrinho().toLocaleString()}`;
+        }
+        atualizarContadorCarrinho();
+    }
+
+    document.addEventListener('click', function(e) {
+        const mini = document.getElementById('miniCarrinho');
+        const icone = document.getElementById('iconeCarrinho');
+        if (!mini.contains(e.target) && e.target !== icone && !icone.contains(e.target)) {
+            mini.classList.remove('ativo');
+        }
+    });
+
+    //  RENDERIZAR PRODUTOS 
+    function filtrarProdutos() {
+        const termo = document.getElementById('buscaInput').value.toLowerCase();
+        const filtrados = produtos.filter(p => p.nome.toLowerCase().includes(termo));
+        renderizarProdutos(filtrados);
+    }
+
+    function renderizarProdutos(lista = produtos) {
+        const container = document.getElementById('listaProdutos');
+        container.innerHTML = '';
+        if (lista.length === 0) {
+            container.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#aaa;">Nenhum produto encontrado.</p>';
+            return;
+        }
+        lista.forEach(prod => {
+            const precoAntigo = (prod.preco * 1.10).toFixed(0);
+            const card = document.createElement('a');
+            card.className = 'card';
+            card.href = `produto.html?id=${prod.id}`;
+            card.innerHTML = `
+                <div class="selo">OFERTA</div>
+                <img src="${prod.img}" alt="${prod.nome}" loading="lazy">
+                <div class="card-content">
+                    <h3>${prod.nome}</h3>
+                    <div class="preco-antigo">R$ ${parseInt(precoAntigo).toLocaleString()}</div>
+                    <div class="preco">R$ ${prod.preco.toLocaleString()}</div>
+                    <button class="btn-comprar" data-id="${prod.id}" data-nome="${prod.nome}" data-preco="${prod.preco}">
+                        COMPRAR
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // botão COMPRAR 
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-comprar')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const id = parseInt(e.target.dataset.id);
+            const nome = e.target.dataset.nome;
+            const preco = parseFloat(e.target.dataset.preco);
+            adicionarAoCarrinho(id, nome, preco);
+            atualizarMiniCarrinho();
+        }
+    });
+
+    // ===== INICIALIZAÇÃO =====
+    window.onload = () => {
+        renderizarProdutos();
+        atualizarContadorCarrinho();
+        atualizarMiniCarrinho();
+        verificarSessao();
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechMarket - Finalizar Compra</title>
+    <link rel="icon" href="logo.png">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', system-ui, sans-serif; }
+        body { background:#0a0a0f; color:#f0f0f0; }
+        header {
+            background:#111116; display:flex; justify-content:space-between; align-items:center;
+            padding:15px 40px; border-bottom:1px solid #1e1e2a;
+        }
+        .logo-area {
+            display:flex; align-items:center; gap:10px; text-decoration:none;
+            color:#00bfff; font-size:28px; font-weight:700;
+        }
+        .logo-area img { width:45px; }
+        .voltar { color:#aaa; text-decoration:none; font-size:16px; }
+        .container {
+            max-width:900px; margin:40px auto; padding:0 20px;
+            display:grid; grid-template-columns:1fr 1fr; gap:30px;
+        }
+        @media (max-width: 768px) {
+            .container { grid-template-columns:1fr; }
+        }
+        .resumo, .pagamento {
+            background:#15151d; border-radius:20px; border:1px solid #222; padding:30px;
+        }
+        h2 { color:#ff6500; margin-bottom:20px; }
+        .item-resumo {
+            display:flex; justify-content:space-between; padding:12px 0;
+            border-bottom:1px solid #222;
+        }
+        .item-resumo button { background:#ff4444; border:none; color:white; padding:4px 10px; border-radius:6px; cursor:pointer; }
+        .total-final { margin-top:20px; font-size:28px; color:#ff6500; text-align:right; font-weight:bold; }
+        .opcoes-pagamento { display:flex; flex-direction:column; gap:12px; margin-top:20px; }
+        .opcao-pag {
+            background:#1e1e28; border:2px solid #333; border-radius:14px; padding:18px;
+            cursor:pointer; transition:0.3s; display:flex; align-items:center; gap:15px; font-size:18px;
+        }
+        .opcao-pag:hover, .opcao-pag.selecionada { border-color:#ff6500; background:#1a2a35; }
+        .opcao-pag .icone-pag { font-size:32px; }
+        .dados-pagamento { margin-top:20px; display:none; }
+        .dados-pagamento.ativo { display:block; }
+        .dados-pagamento input {
+            width:100%; padding:14px; margin-top:10px; background:#1e1e28;
+            border:1px solid #333; color:white; border-radius:10px; font-size:16px;
+        }
+        .dados-pagamento input:focus { border-color:#ff6500; outline:none; }
+        .dados-pagamento .linha { display:flex; gap:10px; }
+        .btn-finalizar {
+            width:100%; padding:18px; margin-top:25px; background:#28a745; color:white;
+            font-weight:bold; font-size:20px; border:none; border-radius:14px; cursor:pointer;
+            transition:0.3s; text-transform:uppercase;
+        }
+        .btn-finalizar:hover { background:#2ecc71; }
+        .btn-finalizar:disabled { background:#555; cursor:not-allowed; }
+        .pix-qrcode { text-align:center; padding:20px; background:white; border-radius:14px; color:black; margin-top:15px; }
+        .pix-qrcode img { width:200px; margin:15px 0; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="logo-area">
+        <img src="logo.png" alt="TechMarket">
+        TechMarket
+    </a>
+    <a href="index.html" class="voltar">← Continuar comprando</a>
+</header>
+
+<div class="container">
+    <!-- Resumo do pedido -->
+    <div class="resumo">
+        <h2>📋 Resumo do Pedido</h2>
+        <div id="itensResumo"></div>
+        <div class="total-final" id="totalFinal">Total: R$ 0</div>
+    </div>
+
+    <!-- Pagamento -->
+    <div class="pagamento">
+        <h2>💳 Forma de Pagamento</h2>
+        <div class="opcoes-pagamento">
+            <div class="opcao-pag" onclick="selecionarPagamento('pix')" id="opcaoPix">
+                <span class="icone-pag">📱</span>
+                <div><strong>Pix</strong><p style="font-size:14px;color:#aaa;">Aprovação instantânea</p></div>
+            </div>
+            <div class="opcao-pag" onclick="selecionarPagamento('cartao')" id="opcaoCartao">
+                <span class="icone-pag">💳</span>
+                <div><strong>Cartão de Crédito</strong><p style="font-size:14px;color:#aaa;">Até 12x sem juros</p></div>
+            </div>
+            <div class="opcao-pag" onclick="selecionarPagamento('boleto')" id="opcaoBoleto">
+                <span class="icone-pag">📄</span>
+                <div><strong>Boleto Bancário</strong><p style="font-size:14px;color:#aaa;">Vencimento em 3 dias</p></div>
+            </div>
+        </div>
+
+        <!-- Dados Pix -->
+        <div class="dados-pagamento" id="dadosPix">
+            <div class="pix-qrcode">
+                <h3 style="color:#333;">Pagamento via Pix</h3>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TechMarket-Pix-2026" alt="QR Code Pix">
+                <p style="color:#555;font-size:14px;">Escaneie o QR Code ou copie o código:</p>
+                <input type="text" value="00020126580014br.gov.bcb.pix0136techmarket2026" readonly style="width:100%;text-align:center;background:#f5f5f5;border:1px solid #ddd;padding:10px;border-radius:8px;margin-top:10px;">
+            </div>
+        </div>
+
+        <!-- Dados Cartão -->
+        <div class="dados-pagamento" id="dadosCartao">
+            <input type="text" placeholder="Número do cartão" maxlength="19">
+            <input type="text" placeholder="Nome impresso no cartão">
+            <div class="linha">
+                <input type="text" placeholder="Validade (MM/AA)" maxlength="5" style="flex:1;">
+                <input type="text" placeholder="CVV" maxlength="4" style="flex:1;">
+            </div>
+            <input type="text" placeholder="CPF do titular">
+        </div>
+
+        <!-- Dados Boleto -->
+        <div class="dados-pagamento" id="dadosBoleto">
+            <p style="color:#aaa;padding:20px 0;">Ao confirmar, você receberá o boleto por email. Vencimento em 3 dias úteis.</p>
+        </div>
+
+        <button class="btn-finalizar" id="btnFinalizar" onclick="finalizarCompra()">
+            ✅ Finalizar Pedido
+        </button>
+        <a href="index.html" style="display:block;margin-top:20px;text-align:center;color:#ff6500;text-decoration:none;">← Voltar para loja</a>
+        <div id="msgFinal" style="margin-top:15px;text-align:center;font-weight:bold;"></div>
+    </div>
+</div>
+
+<script src="produtos.js"></script>
+<script>
+    let formaPagamento = 'pix';
+
+    function selecionarPagamento(tipo) {
+        formaPagamento = tipo;
+        document.querySelectorAll('.opcao-pag').forEach(op => op.classList.remove('selecionada'));
+        document.querySelectorAll('.dados-pagamento').forEach(d => d.classList.remove('ativo'));
+        document.getElementById(`opcao${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).classList.add('selecionada');
+        document.getElementById(`dados${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).classList.add('ativo');
+    }
+
+    function renderizarResumo() {
+        const carrinho = getCarrinho();
+        const itensDiv = document.getElementById('itensResumo');
+        const totalDiv = document.getElementById('totalFinal');
+
+        if (carrinho.length === 0) {
+            itensDiv.innerHTML = '<p style="color:#aaa;padding:20px;">Carrinho vazio.</p>';
+            totalDiv.textContent = 'Total: R$ 0';
+            document.getElementById('btnFinalizar').disabled = true;
+            return;
+        }
+
+        itensDiv.innerHTML = carrinho.map((item, i) => `
+            <div class="item-resumo">
+                <span>${item.nome}</span>
+                <div style="display:flex;align-items:center;gap:15px;">
+                    <span>R$ ${item.preco.toLocaleString()}</span>
+                    <button onclick="removerItem(${i})">🗑</button>
+                </div>
+            </div>
+        `).join('');
+
+        const total = totalCarrinho();
+        totalDiv.textContent = `Total: R$ ${total.toLocaleString()}`;
+        document.getElementById('btnFinalizar').disabled = false;
+    }
+
+    function removerItem(index) {
+        removerDoCarrinho(index);
+        renderizarResumo();
+        atualizarContadorCarrinho();
+    }
+
+    async function finalizarCompra() {
+        const carrinho = getCarrinho();
+        if (carrinho.length === 0) {
+            alert('Carrinho vazio!');
+            return;
+        }
+
+        // Verifica sessão
+        try {
+            const respSessao = await fetch('backend/verificar_sessao.php');
+            const dadosSessao = await respSessao.json();
+            if (!dadosSessao.logado) {
+                alert('Você precisa estar logado para finalizar a compra. Faça login na página principal.');
+                return;
+            }
+        } catch (e) {
+            alert('Erro ao verificar sessão.');
+            return;
+        }
+
+        const total = totalCarrinho();
+
+        try {
+            const resp = await fetch('backend/finalizar_compra.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    carrinho: JSON.stringify(carrinho),
+                    total: total,
+                    pagamento: formaPagamento
+                })
+            });
+            const dados = await resp.json();
+
+            if (dados.erro) {
+                alert(dados.erro);
+                return;
+            }
+
+            document.getElementById('msgFinal').style.color = '#28a745';
+            document.getElementById('msgFinal').textContent = '🎉 ' + dados.sucesso;
+
+            // Limpa carrinho
+            salvarCarrinho([]);
+            renderizarResumo();
+            atualizarContadorCarrinho();
+            document.getElementById('btnFinalizar').disabled = true;
+
+        } catch (e) {
+            alert('Erro ao finalizar compra.');
+        }
+    }
+
+    window.onload = () => {
+        renderizarResumo();
+        atualizarContadorCarrinho();
+        selecionarPagamento('pix');
+    };
+</script>
+</body>
+</html>
